@@ -1,0 +1,78 @@
+apiVersion: apps/v1   
+kind: StatefulSet
+metadata:
+  name: <>
+  namespace: <>
+  labels:
+    service: <>
+spec:
+  serviceName: <>
+  replicas: <>
+  selector:
+    matchLabels:
+      service: <>
+  template:
+    metadata:
+      labels:
+        service: <>
+    spec:
+      initContainers:
+        - name: increase-the-vm-max-map-count
+          image: busybox
+          command:
+            - sysctl
+            - -w
+            - vm.max_map_count=162146
+          securityContext:
+            privileged: true
+        - name: fix-the-volume-permission
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: azure-elastic-persistant
+              mountPath: /usr/share/elasticsearch/data
+      containers:
+        - name: elasticsearch
+          image:  <docker image>
+          resources:
+            limits:
+              cpu: 800m
+              memory: 3Gi
+            requests:
+              cpu: 800m
+              memory: 2Gi    
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: tcp
+          env:
+            - name: cluster.name
+              value: <cluster name>
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: azure-elastic-persistant
+              mountPath: /usr/share/elasticsearch/data
+            - name: <configmap name>
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: <sub path detail>
+      volumes:
+        - name: <configmap name>
+          configMap:
+            name: <configmap name>
+  volumeClaimTemplates:
+    - metadata:
+        name: azure-elastic-persistant
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: managed-premium
+        resources:
+          requests:
+            storage: 10Gi 
+
+
