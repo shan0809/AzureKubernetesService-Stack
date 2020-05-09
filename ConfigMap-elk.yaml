@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <config map name>
+  namespace: <namespace-name>
+data:
+  elasticsearch.yml: |
+    cluster.name: "<name of the cluster>"
+    network.host: 0.0.0.0
+    discovery.zen.minimum_master_nodes: boolean >> 1.2.3
+    xpack.license.self_generated.type: trial or license detail
+    node.max_local_storage_nodes: boolean like 1.2.3.
+    xpack.monitoring.collection.enabled: true || false
+    cluster.initial_master_nodes: "<master node name>"
+    discovery.zen.ping.unicast.hosts: "<name of the service>"
+    xpack.security.enabled: true or false
