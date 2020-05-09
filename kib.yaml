@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: <>
+  labels:
+    app: kibana
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5601
+      name: "kibport"
+  selector:
+    app: kibana
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: <>
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: <>
+          env:
+            - name: ELASTICSEARCH_URL
+              value: http://servicename:9200
+            - name: XPACK.MONITORING.ENABLED
+              value: "true"
+            - name: ELASTICSEARCH_USERNAME
+              value: kibana
+            - name: ELASTICSEARCH_PASSWORD
+              value: <>
+            - name: XPACK.MONITORING.ELASTICSEARCH.USERNAME
+              value: <>
+            - name: XPACK.MONITORING.ELASTICSEARCH.PASSWORD
+              value: <>
+          ports:
+            - containerPort: 5601
+      volumes:
+        - name: volume
+          persistentVolumeClaim:
+            claimName: azure-elastic-persistant
