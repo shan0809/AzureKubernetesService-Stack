@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: production
+  labels:
+    service: elasticsearch
+spec:
+  type: ClusterIP
+  #type: LoadBalancer IF YOU WANT TO EXPOSE YOUR SERVICE WITH A PUBLIC IP
+  selector:
+    service: elasticsearch
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+      protocol: TCP
+    - name: transport
+      port: 9300
+      targetPort: 9300
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discover-elasticsearch
+  namespace: production
+spec:
+  clusterIP: None
+  selector:
+    service: elasticsearch
+  ports:
+    - name: transport
+      port: 9300
+
+
