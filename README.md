@@ -6,6 +6,8 @@ In 2019 Kubernetes was one of most high paying skills companies was looking for,
 
 and you just got started with Azure Kubernetes Service? and looking for a learning path which you can map with your existing environment in your company? This course might help you with https://www.udemy.com/course/azure-kubernetes-service-elasticstack/
 
+https://www.scaleupinfra.com/courses/1190236/lectures/26153337
+
 Kubernetes is a buzz word, whosoever deals managing multiple containers and think of better orchestrating the containers. Kubernetes is the platform, however Kubernetes is not an easy to learn, this course has been tailor made to keep the course really simple and easy.
 
 This course helps you learn Kubernetes fundamentals right from scratch,  Azure Kubernetes Service (AKS) makes deploying and managing containerised applications easy. It offers serverless Kubernetes, backed by power of Azure leveraging features like Active Directory to control fine grained access on who has access to what.
