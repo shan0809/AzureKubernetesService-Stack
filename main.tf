@@ -1,10 +1,11 @@
-
-
+provider "azurerm" {
+  features {}
+}
 
 resource "azurerm_resource_group" "azure_k8s" {
   location = var.location
-  name     = local.common_name
   tags     = var.tags
+  name = local.common_name
 }
 
 resource "azurerm_container_registry" "k8s_acr" {
@@ -14,10 +15,6 @@ resource "azurerm_container_registry" "k8s_acr" {
   sku = "Premium"
   georeplication_locations = ["North Europe", "West Europe"]
 }
-
-
-
-
 
 
 resource "random_id" "azure_random" {
@@ -33,25 +30,23 @@ resource "azurerm_log_analytics_workspace" "azure_workspace" {
 }
 
 resource "azurerm_log_analytics_solution" "azure_logsolution" {
-  location              = azurerm_resource_group.azure_k8s.location
-  resource_group_name   = azurerm_resource_group.azure_k8s.name
-  solution_name         = "ContainerInsights"
-  workspace_name        = azurerm_log_analytics_workspace.azure_workspace.name
+  location = azurerm_resource_group.azure_k8s.location
+  resource_group_name = azurerm_resource_group.azure_k8s.name
+  solution_name = "ContainerInsights"
+  workspace_name = azurerm_log_analytics_workspace.azure_workspace.name
   workspace_resource_id = azurerm_log_analytics_workspace.azure_workspace.id
   plan {
     publisher = "Microsoft"
-    product   = "OMSGallery/ContainerInsights"
+    product = "OMSGallery/ContainerInsights"
   }
 }
 
-
-resource "azurerm_virtual_network" "vnet" {
-  address_space       = [element(var.address_space, 0)]
-  location            = var.location
-  name                = "${local.common_name}-vnet"
-  resource_group_name = azurerm_resource_group.azure_k8s.name
-}
-
+  resource "azurerm_virtual_network" "vnet" {
+    address_space       = [element(var.address_space, 0)]
+    location            = var.location
+    name                = "${local.common_name}-vnet"
+    resource_group_name = azurerm_resource_group.azure_k8s.name
+  }
 
 resource "azurerm_subnet" "subnet" {
   address_prefix       = element(var.address_space, 1)
@@ -60,20 +55,10 @@ resource "azurerm_subnet" "subnet" {
   virtual_network_name = azurerm_virtual_network.vnet.name
 }
 
-resource "azurerm_public_ip" "public_ip" {
-  location            = var.location
-  name                = "${local.common_name}-public_ip"
-  resource_group_name = azurerm_resource_group.azure_k8s.name
-  allocation_method = "Static"
-  sku = element(var.publicip_sku,1 )
-}
-
-
-
 resource "azurerm_kubernetes_cluster" "k8s_cluster" {
   dns_prefix         = var.dns_prefix
   location           = var.location
-  kubernetes_version = "1.16.7"
+  kubernetes_version = "1.21.7"
   name               = "${local.common_name}-k8scluster"
 
   resource_group_name = azurerm_resource_group.azure_k8s.name
@@ -84,9 +69,12 @@ resource "azurerm_kubernetes_cluster" "k8s_cluster" {
     availability_zones = ["1","2"]
   }
 
-  service_principal {
-    client_id     = var.client_id
-    client_secret = var.client_secret
+//  service_principal {
+//    client_id     = var.client_id
+//    client_secret = var.client_secret
+//  }
+  identity {
+    type = "SystemAssigned"
   }
   network_profile {
     network_plugin    = element(var.network_profile, 0)
@@ -104,9 +92,7 @@ resource "azurerm_kubernetes_cluster" "k8s_cluster" {
       log_analytics_workspace_id = azurerm_log_analytics_workspace.azure_workspace.id
     }
 
-    kube_dashboard {
-      enabled = true
-    }
+
   }
   lifecycle {
     ignore_changes = [
@@ -116,5 +102,3 @@ resource "azurerm_kubernetes_cluster" "k8s_cluster" {
   }
   tags = var.tags
 }
-
-
